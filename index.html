@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>IronTrade Journal V8</title>
+<style>
+:root{--bg:#0b1220;--panel:#121e30;--panel2:#19283d;--text:#edf3fb;--muted:#9aabc0;--line:#293950;--gold:#e6b84c;--green:#38c98a;--red:#f07878;--blue:#75a9ff;--orange:#efa64d}
+*{box-sizing:border-box}body{margin:0;padding:16px 11px 35px;min-height:100vh;background:linear-gradient(145deg,#0b1220,#101d30);color:var(--text);font-family:Arial,Tahoma,sans-serif}
+.app{max-width:820px;margin:auto}header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}.brand{display:flex;align-items:center;gap:10px}.logo{width:44px;height:44px;border-radius:13px;background:var(--gold);color:#182234;display:grid;place-items:center;font-weight:900;font-size:20px}
+h1{font-size:19px;margin:0}.subtitle{font-size:12px;color:var(--muted);margin-top:5px}button,input,select,textarea{font:inherit}button{border:0;border-radius:10px;padding:11px 13px;cursor:pointer;font-weight:700}.lang,.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:13px}.section-title{font-size:16px;margin:0 0 13px;font-weight:800}.sub-title{font-size:14px;margin:17px 0 9px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:var(--panel2);border-radius:11px;padding:13px 7px;text-align:center;min-width:0}.stat strong{display:block;font-size:20px;margin-bottom:6px;overflow-wrap:anywhere}.stat span{font-size:11px;color:var(--muted)}
+.green{color:var(--green)}.red{color:var(--red)}.gold{color:var(--gold)}.blue{color:var(--blue)}.orange{color:var(--orange)}
+.progress{height:9px;background:#26364c;border-radius:20px;overflow:hidden}.progress>div{height:100%;width:0;background:var(--green);transition:.2s}.progress-head{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);margin:10px 0 7px}
+.checklist{display:grid;gap:8px}.check{display:flex;align-items:center;gap:10px;background:var(--panel2);padding:11px;border-radius:10px;font-size:13px}.check input{width:18px;height:18px;accent-color:var(--green)}
+.notice{font-size:12px;line-height:1.7;color:var(--muted);margin:11px 0 0}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}label{font-size:12px;color:var(--muted)}
+input,select,textarea{width:100%;min-width:0;background:#0c1727;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--blue)}textarea{min-height:75px;resize:vertical}
+.primary{background:var(--gold);color:#182234;width:100%;margin-top:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1}
+.trade,.analysis-row{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:12px;margin-top:9px}.trade-top,.analysis-row{display:flex;justify-content:space-between;align-items:center;gap:10px}.trade-name{font-weight:800}.trade-meta,.analysis-detail{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.7}.trade-note{font-size:13px;white-space:pre-wrap;line-height:1.6;margin-top:8px}
+.tag{font-size:11px;padding:5px 8px;border-radius:20px;background:#26364c}.tag.win{color:var(--green)}.tag.loss{color:var(--red)}.tag.be{color:var(--gold)}.delete{background:transparent;color:var(--red);padding:6px;font-size:12px}.empty{text-align:center;color:var(--muted);padding:17px;font-size:13px}
+.score-circle{width:112px;height:112px;border-radius:50%;border:8px solid var(--green);display:flex;flex-direction:column;justify-content:center;align-items:center;margin:8px auto 14px;background:var(--panel2)}.score-circle strong{font-size:29px}.score-circle span{font-size:11px;color:var(--muted)}
+.alert{padding:11px;border-radius:10px;font-size:12px;line-height:1.7;margin-top:9px;background:#30291c;color:#f2c878}.alert.bad{background:#351f29;color:#ffaaaa}.alert.good{background:#15352c;color:#8ee0b8}
+.rule-row{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.rule-row:last-child{border:0}.chart{display:flex;align-items:end;gap:5px;height:125px;padding:10px 3px;border-bottom:1px solid var(--line);overflow:hidden}.chart-col{flex:1;min-width:5px;display:flex;flex-direction:column;align-items:center;justify-content:end;height:100%;gap:4px}.chart-bar{width:100%;max-width:25px;border-radius:4px 4px 0 0;min-height:2px}.chart-bar.pos{background:var(--green)}.chart-bar.neg{background:var(--red)}.chart-label{font-size:9px;color:var(--muted)}
+.filters{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;margin-top:12px}.footer{text-align:center;font-size:11px;color:var(--muted);margin-top:18px}
+@media(max-width:520px){body{padding:12px 9px 30px}.stats{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.filters{grid-template-columns:1fr}h1{font-size:17px}}
+
+#authPanel .actions button{min-width:125px}#authPanel [hidden]{display:none!important}#authStatus{font-weight:700}#authStatus.online{color:var(--green)}#authStatus.offline{color:var(--orange)}
+</style>
+</head>
+<body><div class="app">
+<header><div class="brand"><div class="logo">IT</div><div><h1>IronTrade Journal</h1><div class="subtitle" id="subtitle"></div></div></div><button class="lang" id="langBtn">EN</button></header>
+
+<section class="panel" id="authPanel">
+  <h2 class="section-title" id="authTitle">الحساب والمزامنة السحابية</h2>
+  <p class="notice" id="authStatus">جارٍ تهيئة الاتصال...</p>
+  <div class="form-grid" id="authFields">
+    <div class="field"><label for="authEmail" id="authEmailLabel">البريد الإلكتروني</label><input id="authEmail" type="email" autocomplete="email" placeholder="name@example.com"></div>
+    <div class="field"><label for="authPassword" id="authPasswordLabel">كلمة المرور</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="6 أحرف على الأقل"></div>
+  </div>
+  <div class="actions" style="margin-top:10px">
+    <button class="secondary" id="signInBtn" type="button">تسجيل الدخول</button>
+    <button class="secondary" id="signUpBtn" type="button">إنشاء حساب</button>
+    <button class="secondary" id="signOutBtn" type="button" hidden>تسجيل الخروج</button>
+    <button class="secondary" id="syncBtn" type="button" hidden>مزامنة الآن</button>
+  </div>
+  <p class="notice" id="authHint">يمكنك استخدام التطبيق محليًا دون تسجيل الدخول. عند تسجيل الدخول، تتم مزامنة صفقاتك مع حسابك.</p>
+</section>
+
+
+<section class="panel"><h2 class="section-title" id="statsTitle"></h2><div class="stats">
+<div class="stat"><strong class="blue" id="total">0</strong><span id="totalLabel"></span></div><div class="stat"><strong class="green" id="wins">0</strong><span id="winsLabel"></span></div><div class="stat"><strong class="red" id="losses">0</strong><span id="lossesLabel"></span></div><div class="stat"><strong class="gold" id="rate">0%</strong><span id="rateLabel"></span></div></div></section>
+
+<section class="panel"><h2 class="section-title" id="financeTitle"></h2><div class="field"><label id="capitalLabel" for="capital"></label><input id="capital" type="number" min="0" step=".01" value="100"></div>
+<div class="stats" style="margin-top:12px"><div class="stat"><strong class="green" id="grossProfit">$0</strong><span id="grossProfitLabel"></span></div><div class="stat"><strong class="red" id="grossLoss">$0</strong><span id="grossLossLabel"></span></div><div class="stat"><strong id="netProfit">$0</strong><span id="netProfitLabel"></span></div><div class="stat"><strong class="gold" id="profitFactor">—</strong><span id="profitFactorLabel"></span></div></div>
+<div class="stats" style="margin-top:8px"><div class="stat"><strong class="green" id="avgWin">$0</strong><span id="avgWinLabel"></span></div><div class="stat"><strong class="red" id="avgLoss">$0</strong><span id="avgLossLabel"></span></div><div class="stat"><strong class="blue" id="currentBalance">$100</strong><span id="balanceLabel"></span></div><div class="stat"><strong id="knownTrades">0</strong><span id="knownTradesLabel"></span></div></div>
+<div class="stats" style="margin-top:8px"><div class="stat"><strong class="red" id="maxDrawdown">$0</strong><span id="drawdownLabel"></span></div><div class="stat"><strong class="orange" id="maxLossStreak">0</strong><span id="streakLabel"></span></div><div class="stat"><strong class="blue" id="returnPct">0%</strong><span id="returnLabel"></span></div><div class="stat"><strong id="expectancy">$0</strong><span id="expectancyLabel"></span></div></div>
+<p class="notice" id="financeNote"></p><h3 class="sub-title" id="equityTitle"></h3><div class="chart" id="equityChart"></div><p class="notice" id="chartNote"></p></section>
+
+<section class="panel"><h2 class="section-title" id="scoreTitle"></h2><div class="score-circle"><strong id="disciplineScore">0</strong><span id="outOf">/100</span></div><div class="progress"><div id="scoreBar"></div></div><p class="notice" id="scoreDescription"></p><div class="stats" style="margin-top:13px">
+<div class="stat"><strong class="green" id="compliantCount">0</strong><span id="compliantLabel"></span></div><div class="stat"><strong class="red" id="incompleteCount">0</strong><span id="incompleteLabel"></span></div><div class="stat"><strong class="red" id="riskViolations">0</strong><span id="riskViolationsLabel"></span></div><div class="stat"><strong class="orange" id="preferredRisk">0</strong><span id="preferredRiskLabel"></span></div></div></section>
+
+<section class="panel"><h2 class="section-title" id="riskRulesTitle"></h2><div class="rule-row"><span id="ruleOne"></span><strong class="green">1%</strong></div><div class="rule-row"><span id="ruleTwo"></span><strong class="orange">2%</strong></div><div class="rule-row"><span id="ruleThree"></span><strong class="red">2%+</strong></div><div id="riskAlert" class="notice"></div></section>
+
+<section class="panel"><h2 class="section-title" id="checkTitle"></h2><div class="checklist" id="checklist"></div><div class="progress-head"><span id="progressLabel"></span><span id="progressText">0/6</span></div><div class="progress"><div id="progressBar"></div></div><p class="notice" id="checkNotice"></p></section>
+
+<section class="panel"><h2 class="section-title" id="formTitle"></h2><form id="tradeForm"><div class="form-grid">
+<div class="field"><label id="pairLabel" for="pair"></label><input id="pair" value="EURUSD" required maxlength="20"></div>
+<div class="field"><label id="dateLabel" for="date"></label><input id="date" type="date" required></div>
+<div class="field"><label id="timeLabel" for="tradeTime"></label><input id="tradeTime" type="time" required></div>
+<div class="field"><label id="directionLabel" for="direction"></label><select id="direction"><option value="BUY">BUY</option><option value="SELL">SELL</option></select></div>
+<div class="field"><label id="resultLabel" for="result"></label><select id="result"><option value="WIN">WIN</option><option value="LOSS">LOSS</option><option value="BE">BE</option></select></div>
+<div class="field"><label id="riskLabel" for="risk"></label><input id="risk" type="number" min=".1" max="100" step=".1" placeholder="1" required></div>
+<div class="field"><label id="pnlLabel" for="pnl"></label><input id="pnl" type="number" step=".01" placeholder="2.50" required></div>
+<div class="field"><label id="timeframeLabel" for="timeframe"></label><select id="timeframe"><option>M5</option><option>M15</option><option>M30</option><option>H1</option><option>H4</option><option>D1</option></select></div>
+<div class="field full"><label id="notesLabel" for="notes"></label><textarea id="notes" maxlength="1500"></textarea></div></div><div id="liveRiskAlert"></div><div id="livePnlAlert"></div><button class="primary" id="saveBtn" type="submit"></button></form></section>
+
+<section class="panel"><h2 class="section-title" id="sessionTitle"></h2><p class="notice" id="sessionNote"></p><div id="sessionAnalysis"></div><h3 class="sub-title" id="hourTitle"></h3><div id="hourAnalysis"></div><h3 class="sub-title" id="directionAnalysisTitle"></h3><div id="directionAnalysis"></div></section>
+
+<section class="panel"><h2 class="section-title" id="errorTitle"></h2><div id="errorReport"></div><h3 class="sub-title" id="pairAnalysisTitle"></h3><div id="pairAnalysis"></div><h3 class="sub-title" id="timeAnalysisTitle"></h3><div id="timeAnalysis"></div></section>
+
+<section class="panel"><h2 class="section-title" id="monthlyTitle"></h2><div class="stats"><div class="stat"><strong class="blue" id="monthTrades">0</strong><span id="monthTradesLabel"></span></div><div class="stat"><strong class="gold" id="monthScore">0</strong><span id="monthScoreLabel"></span></div><div class="stat"><strong class="green" id="monthWins">0</strong><span id="monthWinsLabel"></span></div><div class="stat"><strong class="red" id="monthLosses">0</strong><span id="monthLossesLabel"></span></div></div><p class="notice" id="monthNote"></p></section>
+
+<section class="panel"><h2 class="section-title" id="historyTitle"></h2>
+<div class="actions"><button class="secondary" id="exportBtn"></button><button class="secondary" id="importBtn"></button><input id="importFile" type="file" accept=".json,application/json" hidden><button class="secondary" id="clearFilterBtn"></button></div>
+<div class="filters"><input id="searchTrade" type="search" placeholder="Search / بحث"><select id="filterResult"><option value="ALL">All results</option><option value="WIN">WIN</option><option value="LOSS">LOSS</option><option value="BE">BE</option></select><select id="filterPair"><option value="ALL">All pairs</option></select></div>
+<div id="filterSummary" class="notice"></div><div id="tradeList"></div></section>
+<div class="footer" id="footerText"></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+const STORAGE_KEY="ironTradeJournal_v2",CHECK_KEY="ironTradeChecklist_v2",CAPITAL_KEY="ironTradeCapital_v5",LANG_KEY="ironTradeLanguage";
+
+const SUPABASE_URL="https://xjtsxrodhruarokdfhwp.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_vBpRFCEOYVCAyahwGNl-vQ_bNBBWQ_o";
+let supabaseClient=null,currentUser=null,cloudBusy=false;
+
+const tr={
+ar:{
+subtitle:"دفتر تداولك المنضبط",statsTitle:"ملخص الأداء",totalLabel:"إجمالي الصفقات",winsLabel:"الرابحة",lossesLabel:"الخاسرة",rateLabel:"نسبة النجاح",
+financeTitle:"التحليل المالي",capitalLabel:"رأس المال الابتدائي بالدولار",grossProfitLabel:"إجمالي الأرباح",grossLossLabel:"إجمالي الخسائر",netProfitLabel:"صافي الربح والخسارة",profitFactorLabel:"معامل الربح",avgWinLabel:"متوسط الربح",avgLossLabel:"متوسط الخسارة",balanceLabel:"الرصيد المحسوب",knownTradesLabel:"صفقات بنتيجة مالية",drawdownLabel:"أكبر تراجع",streakLabel:"أطول سلسلة خسائر",returnLabel:"العائد على رأس المال",expectancyLabel:"متوسط نتيجة الصفقة",financeNote:"الحسابات تعتمد على المبالغ الفعلية المسجلة، ولا تشمل العمولات غير المدخلة.",equityTitle:"تطور الرصيد",chartNote:"الرسم يعرض آخر 20 نتيجة مالية بترتيب التسجيل.",
+scoreTitle:"درجة الانضباط",outOf:"من 100",scoreDescription:"التقييم يقيس الالتزام بالشروط والمخاطرة، ولا يقيس الربحية.",compliantLabel:"مكتملة الشروط",incompleteLabel:"ناقصة الشروط",riskViolationsLabel:"مخالفات المخاطرة",preferredRiskLabel:"مخاطرة 1% أو أقل",
+riskRulesTitle:"قواعد إدارة المخاطرة",ruleOne:"المخاطرة المفضلة",ruleTwo:"الحد الأعلى",ruleThree:"تجاوز الحد الأعلى",riskAlert:"احسب حجم الصفقة بحيث لا تتجاوز خسارتك المحتملة نسبة المخاطرة.",
+checkTitle:"قائمة تحقق نظام الحديد",checks:["تحديد الاتجاه الكبير","تحديد منطقة الاهتمام","تأكيد سحب السيولة","كسر الهيكل المحلي BOS","إعادة الاختبار Retest","ظهور إشارة التأكيد"],progressLabel:"اكتمال شروط الصفقة الحالية",checkNotice:"علّم الشروط التي تحققت فعلًا. تحفظ نسخة منها مع كل صفقة.",
+formTitle:"تسجيل صفقة جديدة",pairLabel:"زوج التداول",dateLabel:"تاريخ الصفقة",timeLabel:"وقت دخول الصفقة (التوقيت المحلي للجهاز)",directionLabel:"الاتجاه",resultLabel:"النتيجة",riskLabel:"المخاطرة %",pnlLabel:"الربح أو الخسارة الفعلية بالدولار",timeframeLabel:"الإطار الزمني",notesLabel:"ملاحظات الصفقة",saveBtn:"حفظ الصفقة",
+riskPreferred:"المخاطرة ضمن المستوى المفضل.",riskAllowed:"المخاطرة أعلى من 1% لكنها ضمن الحد الأعلى 2%.",riskExceeded:"تحذير: المخاطرة تجاوزت 2%.",riskMissing:"أدخل نسبة المخاطرة.",riskError:"أدخل مخاطرة أكبر من صفر ولا تتجاوز 100.",pnlHint:"مبلغ موجب للربح، سالب للخسارة، وصفر للتعادل.",pnlError:"WIN يجب أن يكون موجبًا، LOSS سالبًا، وBE يساوي صفرًا.",
+sessionTitle:"تحليل جلسات السوق",sessionNote:"يُحوّل التطبيق وقت جهازك إلى توقيت طوكيو ولندن ونيويورك مع مراعاة التوقيت الصيفي. الجلسات تقديرية.",hourTitle:"الأداء حسب ساعة الدخول",directionAnalysisTitle:"مقارنة الشراء والبيع",
+sessionNames:{overlap:"تداخل لندن ونيويورك",london:"جلسة لندن",newyork:"جلسة نيويورك",asia:"جلسة طوكيو",other:"خارج الجلسات المحددة"},
+errorTitle:"تقرير الأخطاء والشروط الناقصة",pairAnalysisTitle:"الأداء حسب زوج العملات",timeAnalysisTitle:"الأداء حسب الإطار الزمني",monthlyTitle:"تقرير الشهر الحالي",monthTradesLabel:"صفقات الشهر",monthScoreLabel:"انضباط الشهر",monthWinsLabel:"صفقات رابحة",monthLossesLabel:"صفقات خاسرة",monthNote:"التقرير حسب تاريخ الصفقة.",historyTitle:"سجل الصفقات",exportBtn:"تصدير نسخة احتياطية",importBtn:"استيراد نسخة احتياطية",clearFilterBtn:"عرض الكل",footerText:"IronTrade Journal V8 — الانضباط أولًا.",
+empty:"لا توجد بيانات حتى الآن.",noErrors:"ممتاز! لا توجد شروط ناقصة.",noTrades:"لا توجد صفقات هذا الشهر.",missing:"مرات عدم التحقق",buy:"شراء",sell:"بيع",win:"ربح",loss:"خسارة",be:"تعادل",complete:"مكتملة الشروط",incomplete:"ناقصة الشروط",delete:"حذف",confirmDelete:"هل تريد حذف هذه الصفقة؟",saved:"تم حفظ الصفقة.",noData:"لا توجد بيانات لتصديرها.",exported:"تم تجهيز النسخة الاحتياطية.",imported:"تم استيراد النسخة الاحتياطية بنجاح.",importError:"تعذر استيراد الملف. تأكد أنه ملف نسخة IronTrade Journal صحيح.",confirmImport:"سيتم استبدال بيانات التطبيق الحالية بالنسخة الاحتياطية. هل تريد المتابعة؟",checklistStatus:"حالة الشروط",unknown:"غير محدد",scoreHigh:"انضباط ممتاز",scoreMedium:"انضباط جيد، واصل التحسين",scoreLow:"تحتاج إلى تحسين الالتزام بالخطة",scoreNone:"سجّل صفقاتك لبدء التقييم",noAnalytics:"لا توجد بيانات بعد",financialMissing:"النتيجة المالية غير مسجلة",currency:"دولار",noTime:"وقت غير مسجل",noSession:"لا توجد صفقات بوقت مسجل",trades:"صفقة",wins:"ربح",losses:"خسارة",winRate:"نسبة الفوز",searchPlaceholder:"ابحث عن زوج أو ملاحظة أو تاريخ",allResults:"كل النتائج",allPairs:"كل الأزواج",shown:"صفقة معروضة",timezoneError:"تعذر تحديد الجلسة على هذا الجهاز"
+},
+en:{
+subtitle:"Your disciplined trading journal",statsTitle:"Performance overview",totalLabel:"Total trades",winsLabel:"Wins",lossesLabel:"Losses",rateLabel:"Win rate",
+financeTitle:"Financial performance",capitalLabel:"Starting capital in USD",grossProfitLabel:"Gross profit",grossLossLabel:"Gross loss",netProfitLabel:"Net profit/loss",profitFactorLabel:"Profit factor",avgWinLabel:"Average win",avgLossLabel:"Average loss",balanceLabel:"Calculated balance",knownTradesLabel:"Trades with financial result",drawdownLabel:"Maximum drawdown",streakLabel:"Longest loss streak",returnLabel:"Return on capital",expectancyLabel:"Average trade result",financeNote:"Calculations use recorded actual amounts and exclude commissions not entered.",equityTitle:"Balance growth",chartNote:"Chart shows the latest 20 financial results in entry order.",
+scoreTitle:"Discipline score",outOf:"out of 100",scoreDescription:"The score measures checklist and risk discipline, not profitability.",compliantLabel:"Checklist complete",incompleteLabel:"Checklist incomplete",riskViolationsLabel:"Risk violations",preferredRiskLabel:"Risk at or below 1%",
+riskRulesTitle:"Risk management rules",ruleOne:"Preferred risk",ruleTwo:"Maximum risk",ruleThree:"Above maximum",riskAlert:"Calculate position size so potential loss stays within your risk limit.",
+checkTitle:"Iron System Checklist",checks:["Identify higher-timeframe trend","Mark area of interest","Confirm liquidity sweep","Local structure break (BOS)","Wait for retest","Wait for confirmation"],progressLabel:"Current checklist completion",checkNotice:"Tick only conditions that actually occurred. A snapshot is saved with each trade.",
+formTitle:"Log a new trade",pairLabel:"Trading pair",dateLabel:"Trade date",timeLabel:"Entry time (device local time)",directionLabel:"Direction",resultLabel:"Result",riskLabel:"Risk %",pnlLabel:"Actual profit or loss in USD",timeframeLabel:"Timeframe",notesLabel:"Trade notes",saveBtn:"Save trade",
+riskPreferred:"Risk is within the preferred level.",riskAllowed:"Risk is above 1% but within the 2% maximum.",riskExceeded:"Warning: risk exceeds 2%.",riskMissing:"Enter a risk percentage.",riskError:"Enter a risk greater than zero and no more than 100.",pnlHint:"Positive amount for profit, negative for loss, zero for break-even.",pnlError:"WIN must be positive, LOSS negative, and BE must be zero.",
+sessionTitle:"Market session analysis",sessionNote:"Device time is converted to Tokyo, London and New York local time, including daylight saving changes. Sessions are estimates.",hourTitle:"Performance by entry hour",directionAnalysisTitle:"BUY vs SELL comparison",
+sessionNames:{overlap:"London–New York overlap",london:"London session",newyork:"New York session",asia:"Tokyo session",other:"Outside selected sessions"},
+errorTitle:"Mistakes and missing conditions",pairAnalysisTitle:"Performance by currency pair",timeAnalysisTitle:"Performance by timeframe",monthlyTitle:"Current month report",monthTradesLabel:"Monthly trades",monthScoreLabel:"Monthly discipline",monthWinsLabel:"Winning trades",monthLossesLabel:"Losing trades",monthNote:"Report uses recorded trade dates.",historyTitle:"Trade history",exportBtn:"Export backup",importBtn:"Import backup",clearFilterBtn:"Show all",footerText:"IronTrade Journal V8 — Discipline first.",
+empty:"No data yet.",noErrors:"Great! No missing checklist conditions.",noTrades:"No trades this month.",missing:"times missed",buy:"Buy",sell:"Sell",win:"Win",loss:"Loss",be:"Break-even",complete:"Checklist complete",incomplete:"Checklist incomplete",delete:"Delete",confirmDelete:"Delete this trade?",saved:"Trade saved.",noData:"There is no data to export.",exported:"Backup prepared.",imported:"Backup imported successfully.",importError:"Could not import this file. Select a valid IronTrade Journal backup.",confirmImport:"Current app data will be replaced by this backup. Continue?",checklistStatus:"Checklist status",unknown:"Unknown",scoreHigh:"Excellent discipline",scoreMedium:"Good discipline, keep improving",scoreLow:"Work on following your plan",scoreNone:"Record trades to begin scoring",noAnalytics:"No data yet",financialMissing:"Financial result not recorded",currency:"USD",noTime:"Time not recorded",noSession:"No trades with recorded entry time",searchPlaceholder:"Search pair, note or date",allResults:"All results",allPairs:"All pairs",shown:"trades shown",timezoneError:"Could not determine session on this device"
+}};
+let lang=localStorage.getItem(LANG_KEY)||"ar";if(!tr[lang])lang="ar";
+let trades=loadTrades(),checks=loadChecks(),startingCapital=loadCapital();
+function localDate(){let d=new Date(),off=d.getTimezoneOffset();return new Date(d.getTime()-off*60000).toISOString().slice(0,10)}
+function loadTrades(){try{let d=JSON.parse(localStorage.getItem(STORAGE_KEY));return Array.isArray(d)?d.filter(validTrade):[]}catch(e){return []}}
+function validTrade(a){return a&&typeof a==="object"&&typeof a.pair==="string"&&["BUY","SELL"].includes(a.direction)&&["WIN","LOSS","BE"].includes(a.result)&&Number.isFinite(Number(a.risk))&&typeof a.date==="string"}
+function loadChecks(){try{let d=JSON.parse(localStorage.getItem(CHECK_KEY));if(Array.isArray(d)&&d.length===6)return d.map(Boolean)}catch(e){}return [false,false,false,false,false,false]}
+function loadCapital(){let raw=localStorage.getItem(CAPITAL_KEY);if(raw===null||raw==="")return 100;let n=Number(raw);return Number.isFinite(n)&&n>=0?n:100}
+function saveData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(trades));localStorage.setItem(CHECK_KEY,JSON.stringify(checks));localStorage.setItem(CAPITAL_KEY,String(startingCapital));return true}catch(e){alert(lang==="ar"?"تعذر الحفظ. قد تكون مساحة التخزين ممتلئة.":"Save failed. Device storage may be full.");return false}}
+function t(){return tr[lang]}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function money(n){n=Number(n)||0;return (n<0?"-$":"$")+Math.abs(n).toFixed(2)}
+function getChecks(a){return Array.isArray(a.checks)&&a.checks.length===6?a.checks.map(Boolean):[false,false,false,false,false,false]}
+function riskViolation(a){return Number(a.risk)>2}
+function scoreTrade(a){return Math.round(getChecks(a).filter(Boolean).length/6*80+(Number(a.risk)>0&&Number(a.risk)<=2?20:0))}
+function avgScore(list){return list.length?Math.round(list.reduce((s,a)=>s+scoreTrade(a),0)/list.length):0}
+function hasPnl(a){return a.pnl!==undefined&&a.pnl!==null&&a.pnl!==""&&Number.isFinite(Number(a.pnl))}
+function financialTrades(){return trades.filter(hasPnl)}
+function totals(list){let v=list.filter(hasPnl).map(a=>Number(a.pnl)),p=v.filter(n=>n>0).reduce((s,n)=>s+n,0),l=v.filter(n=>n<0).reduce((s,n)=>s+Math.abs(n),0);return {profit:p,loss:l,net:p-l}}
+function drawdown(list){let bal=startingCapital,peak=bal,max=0;list.filter(hasPnl).forEach(a=>{bal+=Number(a.pnl);peak=Math.max(peak,bal);max=Math.max(max,peak-bal)});return max}
+function lossStreak(list){let cur=0,max=0;list.forEach(a=>{if(a.result==="LOSS"){cur++;max=Math.max(max,cur)}else cur=0});return max}
+function renderFinance(){
+let list=financialTrades(),z=totals(list),w=list.filter(a=>Number(a.pnl)>0),l=list.filter(a=>Number(a.pnl)<0),net=z.net;
+document.getElementById("capital").value=startingCapital;
+document.getElementById("grossProfit").textContent=money(z.profit);document.getElementById("grossLoss").textContent=money(-z.loss);
+let ne=document.getElementById("netProfit");ne.textContent=money(net);ne.className=net>0?"green":net<0?"red":"";
+document.getElementById("profitFactor").textContent=z.loss?(z.profit/z.loss).toFixed(2):(z.profit?"∞":"—");
+document.getElementById("avgWin").textContent=money(w.length?z.profit/w.length:0);document.getElementById("avgLoss").textContent=money(l.length?-z.loss/l.length:0);
+document.getElementById("currentBalance").textContent=money(startingCapital+net);document.getElementById("knownTrades").textContent=list.length;
+document.getElementById("maxDrawdown").textContent=money(-drawdown(trades));document.getElementById("maxLossStreak").textContent=lossStreak(trades);
+document.getElementById("returnPct").textContent=startingCapital>0?(net/startingCapital*100).toFixed(1)+"%":"—";
+document.getElementById("expectancy").textContent=money(list.length?net/list.length:0);
+let chart=document.getElementById("equityChart");if(!list.length){chart.innerHTML=`<div class="empty">${t().empty}</div>`;return}
+let last=list.slice(-20),max=Math.max(1,...last.map(a=>Math.abs(Number(a.pnl))));
+chart.innerHTML=last.map((a,i)=>{let n=Number(a.pnl),h=Math.max(4,Math.abs(n)/max*75);return `<div class="chart-col"><div class="chart-bar ${n>=0?"pos":"neg"}" style="height:${h}px" title="${money(n)}"></div><span class="chart-label">${i+1}</span></div>`}).join("");
+}
+
+function authMessage(ar,en){return lang==="ar"?ar:en}
+function setAuthStatus(message,kind=""){
+  const el=document.getElementById("authStatus");
+  el.textContent=message;el.className="notice "+kind;
+}
+function renderAuthState(){
+  const logged=!!currentUser;
+  document.getElementById("authFields").hidden=logged;
+  document.getElementById("signInBtn").hidden=logged;
+  document.getElementById("signUpBtn").hidden=logged;
+  document.getElementById("signOutBtn").hidden=!logged;
+  document.getElementById("syncBtn").hidden=!logged;
+  if(logged){
+    setAuthStatus(authMessage("متصل بالحساب: ","Signed in: ")+currentUser.email,"online");
+    document.getElementById("authHint").textContent=authMessage(
+      "صفقاتك مرتبطة بهذا الحساب. استخدم «مزامنة الآن» لتحديث البيانات بين أجهزتك.",
+      "Your trades are linked to this account. Use Sync now to update data across devices."
+    );
+  }else{
+    setAuthStatus(authMessage("وضع محلي — لم تسجل الدخول بعد.","Local mode — you are not signed in."),"offline");
+    document.getElementById("authHint").textContent=authMessage(
+      "يمكنك استخدام التطبيق محليًا دون تسجيل الدخول. سجّل الدخول لتفعيل النسخ السحابي.",
+      "You can use the app locally without signing in. Sign in to enable cloud backup."
+    );
+  }
+}
+function uuidValue(value){
+  const s=String(value||"");
+  if(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s))return s;
+  if(crypto&&crypto.randomUUID)return crypto.randomUUID();
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==="x"?r:(r&3|8)).toString(16)});
+}
+function toCloudTrade(a){
+  a.id=uuidValue(a.id);
+  return {
+    id:a.id,user_id:currentUser.id,pair:String(a.pair||"").toUpperCase(),
+    trade_date:a.date,trade_time:a.time||null,
+    direction:a.direction==="BUY"?"buy":"sell",
+    result:a.result==="WIN"?"win":a.result==="LOSS"?"loss":"breakeven",
+    risk:Number(a.risk)||0,pnl:Number(a.pnl)||0,
+    timeframe:a.timeframe||null,notes:a.notes||null,checks:getChecks(a)
+  };
+}
+function fromCloudTrade(a){
+  return {
+    id:a.id,pair:a.pair,date:a.trade_date,
+    time:a.trade_time?String(a.trade_time).slice(0,5):"",
+    direction:a.direction==="buy"?"BUY":"SELL",
+    result:a.result==="win"?"WIN":a.result==="loss"?"LOSS":"BE",
+    risk:Number(a.risk)||0,pnl:Number(a.pnl)||0,
+    timeframe:a.timeframe||"",notes:a.notes||"",
+    checks:Array.isArray(a.checks)?a.checks.map(Boolean):[false,false,false,false,false,false]
+  };
+}
+async function pullCloudTrades(merge=true){
+  if(!supabaseClient||!currentUser)return;
+  const {data,error}=await supabaseClient.from("trades").select("*").eq("user_id",currentUser.id).order("trade_date",{ascending:true});
+  if(error)throw error;
+  const remote=(data||[]).map(fromCloudTrade);
+  if(merge){
+    const map=new Map(trades.map(a=>[a.id,a]));
+    remote.forEach(a=>map.set(a.id,a));
+    trades=[...map.values()].sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  }else trades=remote;
+  saveData();render();
+}
+async function syncCloud(){
+  if(!supabaseClient||!currentUser){setAuthStatus(authMessage("سجّل الدخول أولًا.","Please sign in first."),"offline");return}
+  if(cloudBusy)return;
+  cloudBusy=true;document.getElementById("syncBtn").disabled=true;
+  setAuthStatus(authMessage("جارٍ مزامنة الصفقات...","Syncing trades..."));
+  try{
+    const payload=trades.map(toCloudTrade);
+    if(payload.length){
+      const {error}=await supabaseClient.from("trades").upsert(payload,{onConflict:"id"});
+      if(error)throw error;
+    }
+    await pullCloudTrades(true);
+    localStorage.setItem("ironTradeCloudMigrated_"+currentUser.id,"yes");
+    setAuthStatus(authMessage("اكتملت المزامنة بنجاح.","Sync completed successfully."),"online");
+  }catch(err){
+    console.error("IronTrade sync error:",err);
+    setAuthStatus(authMessage("تعذرت المزامنة: ","Sync failed: ")+(err.message||"Unknown error"),"offline");
+  }finally{
+    cloudBusy=false;document.getElementById("syncBtn").disabled=false;
+  }
+}
+async function afterLogin(){
+  renderAuthState();
+  if(!currentUser)return;
+  const marker="ironTradeCloudMigrated_"+currentUser.id;
+  if(localStorage.getItem(marker)!=="yes"&&trades.length){
+    const ok=confirm(authMessage(
+      "لديك "+trades.length+" صفقة محفوظة على هذا الجهاز. هل تريد رفعها إلى حسابك السحابي؟",
+      "You have "+trades.length+" trades saved on this device. Upload them to your cloud account?"
+    ));
+    if(ok){await syncCloud();return}
+    try{await pullCloudTrades(true);setAuthStatus(authMessage("تم تحميل صفقات الحساب. لم تُرفع البيانات المحلية بعد.","Account trades loaded. Local trades have not been uploaded yet."),"online")}
+    catch(err){setAuthStatus(authMessage("تعذر تحميل الصفقات: ","Could not load trades: ")+(err.message||""),"offline")}
+  }else{
+    try{await syncCloud()}catch(err){console.error(err)}
+  }
+}
+async function initCloud(){
+  if(!window.supabase||!window.supabase.createClient){
+    setAuthStatus(authMessage("تعذر تحميل مكتبة الاتصال. تحقق من الإنترنت.","Could not load the connection library. Check your internet."),"offline");return;
+  }
+  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+  const {data,error}=await supabaseClient.auth.getSession();
+  if(error){setAuthStatus(error.message,"offline");return}
+  currentUser=data.session?.user||null;
+  renderAuthState();
+  if(currentUser)await afterLogin();
+  supabaseClient.auth.onAuthStateChange((_event,session)=>{
+    currentUser=session?.user||null;renderAuthState();
+    if(currentUser)Promise.resolve().then(()=>afterLogin());
+  });
+}
+document.getElementById("signUpBtn").addEventListener("click",async()=>{
+  const email=document.getElementById("authEmail").value.trim(),password=document.getElementById("authPassword").value;
+  if(!email||password.length<6){alert(authMessage("أدخل بريدًا صحيحًا وكلمة مرور من 6 أحرف على الأقل.","Enter a valid email and a password with at least 6 characters."));return}
+  setAuthStatus(authMessage("جارٍ إنشاء الحساب...","Creating account..."));
+  const {data,error}=await supabaseClient.auth.signUp({email,password});
+  if(error){setAuthStatus(error.message,"offline");return}
+  if(data.session){currentUser=data.session.user;renderAuthState()}
+  else setAuthStatus(authMessage("تم إنشاء الحساب. افتح بريدك واضغط رابط التأكيد، ثم سجّل الدخول.","Account created. Check your email for the confirmation link, then sign in."),"online");
+});
+document.getElementById("signInBtn").addEventListener("click",async()=>{
+  const email=document.getElementById("authEmail").value.trim(),password=document.getElementById("authPassword").value;
+  if(!email||!password){alert(authMessage("أدخل البريد الإلكتروني وكلمة المرور.","Enter your email and password."));return}
+  setAuthStatus(authMessage("جارٍ تسجيل الدخول...","Signing in..."));
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error){setAuthStatus(error.message,"offline");return}
+  currentUser=data.user;renderAuthState();
+});
+document.getElementById("signOutBtn").addEventListener("click",async()=>{
+  if(!supabaseClient)return;
+  const {error}=await supabaseClient.auth.signOut();
+  if(error){setAuthStatus(error.message,"offline");return}
+  currentUser=null;renderAuthState();
+});
+document.getElementById("syncBtn").addEventListener("click",syncCloud);
+
+function setLanguage(){
+let x=t();document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";document.getElementById("langBtn").textContent=lang==="ar"?"EN":"عربي";
+let ids=["subtitle","statsTitle","totalLabel","winsLabel","lossesLabel","rateLabel","financeTitle","capitalLabel","grossProfitLabel","grossLossLabel","netProfitLabel","profitFactorLabel","avgWinLabel","avgLossLabel","balanceLabel","knownTradesLabel","drawdownLabel","streakLabel","returnLabel","expectancyLabel","financeNote","equityTitle","chartNote","scoreTitle","outOf","scoreDescription","compliantLabel","incompleteLabel","riskViolationsLabel","preferredRiskLabel","riskRulesTitle","ruleOne","ruleTwo","ruleThree","riskAlert","checkTitle","progressLabel","checkNotice","formTitle","pairLabel","dateLabel","timeLabel","directionLabel","resultLabel","riskLabel","pnlLabel","timeframeLabel","notesLabel","saveBtn","sessionTitle","sessionNote","hourTitle","directionAnalysisTitle","errorTitle","pairAnalysisTitle","timeAnalysisTitle","monthlyTitle","monthTradesLabel","monthScoreLabel","monthWinsLabel","monthLossesLabel","monthNote","historyTitle","exportBtn","importBtn","clearFilterBtn","footerText"];
+ids.forEach(id=>document.getElementById(id).textContent=x[id]);
+document.getElementById("searchTrade").placeholder=x.searchPlaceholder;
+document.getElementById("filterResult").options[0].text=x.allResults;
+document.getElementById("checklist").innerHTML=x.checks.map((n,i)=>`<label class="check"><input type="checkbox" data-check="${i}" ${checks[i]?"checked":""}><span>${n}</span></label>`).join("");
+render();updateRiskAlert();updatePnlAlert();
+}
+function render(){
+let x=t(),wins=trades.filter(a=>a.result==="WIN").length,losses=trades.filter(a=>a.result==="LOSS").length,n=wins+losses;
+document.getElementById("total").textContent=trades.length;document.getElementById("wins").textContent=wins;document.getElementById("losses").textContent=losses;document.getElementById("rate").textContent=(n?Math.round(wins/n*100):0)+"%";
+let complete=trades.filter(a=>getChecks(a).every(Boolean)).length;
+document.getElementById("compliantCount").textContent=complete;document.getElementById("incompleteCount").textContent=trades.length-complete;document.getElementById("riskViolations").textContent=trades.filter(riskViolation).length;document.getElementById("preferredRisk").textContent=trades.filter(a=>Number(a.risk)>0&&Number(a.risk)<=1).length;
+let score=avgScore(trades);document.getElementById("disciplineScore").textContent=score;document.getElementById("scoreBar").style.width=score+"%";
+let scoreText=!trades.length?x.scoreNone:score>=85?x.scoreHigh:score>=60?x.scoreMedium:x.scoreLow;document.getElementById("scoreDescription").textContent=x.scoreDescription+" "+scoreText;
+let done=checks.filter(Boolean).length;document.getElementById("progressText").textContent=done+" / 6";document.getElementById("progressBar").style.width=done/6*100+"%";
+renderFinance();renderErrors();renderGroups("pair","pairAnalysis");renderGroups("timeframe","timeAnalysis");renderMonthly();renderSessions();renderDirection();renderTradeList();populatePairFilter();
+}
+function renderErrors(){
+let x=t(),counts=[0,0,0,0,0,0];trades.forEach(a=>getChecks(a).forEach((v,i)=>{if(!v)counts[i]++}));
+let rows=counts.map((n,i)=>({n,i})).filter(a=>a.n).sort((a,b)=>b.n-a.n),html=rows.length?rows.map(a=>`<div class="analysis-row"><div>${esc(x.checks[a.i])}</div><strong>${a.n} ${x.missing}</strong></div>`).join(""):`<div class="alert good">${x.noErrors}</div>`;
+if(trades.some(riskViolation)){let k=trades.filter(riskViolation).length;html+=`<div class="alert bad">${lang==="ar"?"صفقات تجاوزت مخاطرة 2%: ":"Trades exceeding 2% risk: "}${k}</div>`}
+document.getElementById("errorReport").innerHTML=trades.length?html:`<div class="empty">${x.empty}</div>`;
+}
+function renderGroups(key,id){
+let x=t(),g={};trades.forEach(a=>{let k=a[key]||x.unknown;if(!g[k])g[k]={total:0,w:0,l:0,be:0};g[k].total++;if(a.result==="WIN")g[k].w++;if(a.result==="LOSS")g[k].l++;if(a.result==="BE")g[k].be++});
+let entries=Object.entries(g).sort((a,b)=>b[1].total-a[1].total),target=document.getElementById(id);
+if(!entries.length){target.innerHTML=`<div class="empty">${x.noAnalytics}</div>`;return}
+target.innerHTML=entries.map(([name,a])=>{let count=a.w+a.l;return `<div class="analysis-row"><div><strong>${esc(name)}</strong><div class="analysis-detail">${a.total} ${x.trades} · ${a.w} ${x.wins} · ${a.l} ${x.losses} · ${a.be} BE</div></div><strong>${count?Math.round(a.w/count*100)+"%":"—"}</strong></div>`}).join("");
+}
+function renderMonthly(){
+let x=t(),m=localDate().slice(0,7),a=trades.filter(v=>String(v.date||"").startsWith(m));
+document.getElementById("monthTrades").textContent=a.length;document.getElementById("monthScore").textContent=avgScore(a);document.getElementById("monthWins").textContent=a.filter(v=>v.result==="WIN").length;document.getElementById("monthLosses").textContent=a.filter(v=>v.result==="LOSS").length;document.getElementById("monthNote").textContent=a.length?x.monthNote:x.noTrades;
+}
+function getSession(a){
+if(!a.date||!a.time)return null;
+try{let iso=a.date+"T"+a.time+":00";function hour(zone){return Number(new Intl.DateTimeFormat("en-GB",{timeZone:zone,hour:"2-digit",hourCycle:"h23"}).format(new Date(iso)))}
+let tokyo=hour("Asia/Tokyo"),london=hour("Europe/London"),ny=hour("America/New_York"),asia=tokyo>=9&&tokyo<18,lon=london>=8&&london<17,newy=ny>=8&&ny<17;
+if(lon&&newy)return "overlap";if(lon)return "london";if(newy)return "newyork";if(asia)return "asia";return "other";
+}catch(e){return null}
+}
+function summary(list){let w=list.filter(a=>a.result==="WIN").length,l=list.filter(a=>a.result==="LOSS").length,n=w+l;return `${list.length} ${t().trades} · ${w} ${t().wins} · ${l} ${t().losses} · ${t().winRate}: ${n?Math.round(w/n*100)+"%":"—"}`}
+function renderSessions(){
+let x=t(),valid=trades.filter(a=>a.time&&a.date),keys=["overlap","london","newyork","asia","other"],groups={};keys.forEach(k=>groups[k]=[]);
+valid.forEach(a=>{let s=getSession(a);if(s&&groups[s])groups[s].push(a)});
+document.getElementById("sessionAnalysis").innerHTML=!valid.length?`<div class="empty">${x.noSession}</div>`:keys.filter(k=>groups[k].length).map(k=>`<div class="analysis-row"><div><strong>${x.sessionNames[k]}</strong><div class="analysis-detail">${summary(groups[k])}</div></div><strong>${groups[k].length}</strong></div>`).join("");
+let hours={};valid.forEach(a=>{let h=Number(a.time.split(":")[0]);if(!hours[h])hours[h]=[];hours[h].push(a)});
+let hs=Object.entries(hours).sort((a,b)=>Number(a[0])-Number(b[0]));
+document.getElementById("hourAnalysis").innerHTML=hs.length?hs.map(([h,a])=>`<div class="analysis-row"><div><strong>${String(h).padStart(2,"0")}:00</strong><div class="analysis-detail">${summary(a)}</div></div><strong>${a.length}</strong></div>`).join(""):`<div class="empty">${x.noSession}</div>`;
+}
+function renderDirection(){
+let x=t(),a=trades.filter(v=>v.direction==="BUY"),b=trades.filter(v=>v.direction==="SELL");
+document.getElementById("directionAnalysis").innerHTML=["BUY","SELL"].map((k,i)=>{let v=i===0?a:b;return `<div class="analysis-row"><div><strong>${i===0?x.buy:x.sell}</strong><div class="analysis-detail">${summary(v)}</div></div><strong>${v.length}</strong></div>`}).join("");
+}
+function populatePairFilter(){
+let sel=document.getElementById("filterPair"),current=sel.value,pairs=[...new Set(trades.map(a=>a.pair).filter(Boolean))].sort();
+sel.innerHTML=`<option value="ALL">${t().allPairs}</option>`+pairs.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join("");
+if(pairs.includes(current))sel.value=current;
+}
+function renderTradeList(){
+let x=t(),q=document.getElementById("searchTrade").value.trim().toLowerCase(),res=document.getElementById("filterResult").value,pair=document.getElementById("filterPair").value;
+let filtered=trades.filter(a=>(res==="ALL"||a.result===res)&&(pair==="ALL"||a.pair===pair)&&(!q||[a.pair,a.date,a.time,a.notes,a.timeframe].join(" ").toLowerCase().includes(q)));
+document.getElementById("filterSummary").textContent=filtered.length+" "+x.shown;
+let list=document.getElementById("tradeList");if(!filtered.length){list.innerHTML=`<div class="empty">${trades.length?x.noAnalytics:x.empty}</div>`;return}
+list.innerHTML=filtered.slice().reverse().map(a=>{
+let c=getChecks(a),count=c.filter(Boolean).length,rc=String(a.result||"BE").toLowerCase(),risk=Number(a.risk)||0;
+let rt=risk>2?(lang==="ar"?"مخالفة مخاطرة":"Risk violation"):risk>1?(lang==="ar"?"ضمن الحد الأعلى":"Within maximum"):risk>0?(lang==="ar"?"ضمن المستوى المفضل":"Preferred risk"):(lang==="ar"?"المخاطرة غير مسجلة":"Risk not recorded");
+let pnl=hasPnl(a)?money(Number(a.pnl)):x.financialMissing,pc=hasPnl(a)?(Number(a.pnl)>0?"green":Number(a.pnl)<0?"red":"gold"):"";
+return `<article class="trade"><div class="trade-top"><div><div class="trade-name">${esc(a.pair)} · ${a.direction==="BUY"?x.buy:x.sell}</div><div class="trade-meta">${esc(a.date)} · ${esc(a.time||x.noTime)} · ${esc(a.timeframe||"—")} · ${risk}%</div></div><span class="tag ${rc}">${x[rc]||x.be}</span></div><div class="trade-meta">${count===6?x.complete:x.incomplete} (${count}/6)</div><div class="trade-meta">${rt} · ${lang==="ar"?"الانضباط":"Discipline"}: ${scoreTrade(a)}/100</div><div class="trade-meta">${lang==="ar"?"النتيجة المالية":"Financial result"}: <strong class="${pc}">${pnl}</strong></div><div class="trade-meta">${x.checklistStatus}: ${c.map((v,i)=>v?"✓ "+x.checks[i]:"").filter(Boolean).join(" · ")||"—"}</div>${a.notes?`<div class="trade-note">${esc(a.notes)}</div>`:""}<div style="text-align:end"><button class="delete" data-delete="${esc(a.id)}">${x.delete}</button></div></article>`;
+}).join("");
+}
+function updateRiskAlert(){
+let x=t(),v=document.getElementById("risk").value,b=document.getElementById("liveRiskAlert");
+if(v===""){b.className="notice";b.textContent=x.riskMissing;return}
+let n=Number(v);if(!Number.isFinite(n)||n<=0||n>100){b.className="alert bad";b.textContent=x.riskError}else if(n<=1){b.className="alert good";b.textContent=x.riskPreferred}else if(n<=2){b.className="alert";b.textContent=x.riskAllowed}else{b.className="alert bad";b.textContent=x.riskExceeded}
+}
+function updatePnlAlert(){
+let r=document.getElementById("result").value,v=document.getElementById("pnl").value,b=document.getElementById("livePnlAlert"),x=t();
+if(v===""){b.className="notice";b.textContent=x.pnlHint;return}
+let n=Number(v),ok=Number.isFinite(n)&&((r==="WIN"&&n>0)||(r==="LOSS"&&n<0)||(r==="BE"&&n===0));
+b.className=ok?"alert good":"alert bad";b.textContent=ok?x.pnlHint:x.pnlError;
+}
+document.getElementById("langBtn").addEventListener("click",()=>{lang=lang==="ar"?"en":"ar";localStorage.setItem(LANG_KEY,lang);setLanguage()});
+document.getElementById("checklist").addEventListener("change",e=>{if(e.target.matches("[data-check]")){checks[Number(e.target.dataset.check)]=e.target.checked;saveData();render()}});
+document.getElementById("risk").addEventListener("input",updateRiskAlert);document.getElementById("pnl").addEventListener("input",updatePnlAlert);document.getElementById("result").addEventListener("change",updatePnlAlert);
+document.getElementById("capital").addEventListener("change",e=>{let n=Number(e.target.value);if(!Number.isFinite(n)||n<0){alert(lang==="ar"?"أدخل رأس مال صحيحًا.":"Enter valid capital.");e.target.value=startingCapital;return}startingCapital=n;saveData();renderFinance()});
+document.getElementById("tradeForm").addEventListener("submit",e=>{
+e.preventDefault();let risk=Number(document.getElementById("risk").value),pnl=Number(document.getElementById("pnl").value),result=document.getElementById("result").value;
+if(!Number.isFinite(risk)||risk<=0||risk>100){alert(t().riskError);return}
+let ok=Number.isFinite(pnl)&&((result==="WIN"&&pnl>0)||(result==="LOSS"&&pnl<0)||(result==="BE"&&pnl===0));if(!ok){alert(t().pnlError);return}
+let trade={id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())+"_"+Math.random().toString(16).slice(2)),pair:document.getElementById("pair").value.trim().toUpperCase(),date:document.getElementById("date").value,time:document.getElementById("tradeTime").value,direction:document.getElementById("direction").value,result,risk,pnl,timeframe:document.getElementById("timeframe").value,notes:document.getElementById("notes").value.trim(),checks:[...checks]};
+if(!trade.pair||!trade.date||!trade.time){alert(lang==="ar"?"أكمل بيانات الصفقة.":"Complete trade details.");return}
+trades.push(trade);let oldChecks=checks;checks=[false,false,false,false,false,false];if(!saveData()){trades.pop();checks=oldChecks;return}
+document.getElementById("notes").value="";document.getElementById("risk").value="";document.getElementById("pnl").value="";setLanguage();alert(t().saved);if(currentUser)syncCloud();
+});
+document.getElementById("tradeList").addEventListener("click",async e=>{let b=e.target.closest("[data-delete]");if(b&&confirm(t().confirmDelete)){let id=b.dataset.delete,old=trades;trades=trades.filter(a=>a.id!==id);if(saveData()){render();if(currentUser){const {error}=await supabaseClient.from("trades").delete().eq("id",id).eq("user_id",currentUser.id);if(error)setAuthStatus(error.message,"offline")}}else trades=old}});
+["searchTrade","filterResult","filterPair"].forEach(id=>document.getElementById(id).addEventListener(id==="searchTrade"?"input":"change",renderTradeList));
+document.getElementById("clearFilterBtn").addEventListener("click",()=>{document.getElementById("searchTrade").value="";document.getElementById("filterResult").value="ALL";document.getElementById("filterPair").value="ALL";renderTradeList()});
+document.getElementById("exportBtn").addEventListener("click",()=>{
+if(!trades.length){alert(t().noData);return}
+let backup={app:"IronTrade Journal",version:8,exportedAt:new Date().toISOString(),startingCapital,trades,currentChecklist:checks,language:lang};
+let blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="IronTradeJournal-V8-Backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200);alert(t().exported);
+});
+document.getElementById("importBtn").addEventListener("click",()=>document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change",async e=>{
+let file=e.target.files[0];if(!file)return;
+try{
+let data=JSON.parse(await file.text());
+if(!data||!Array.isArray(data.trades)||!data.trades.every(validTrade)||!Number.isFinite(Number(data.startingCapital))||Number(data.startingCapital)<0)throw new Error("invalid");
+if(!confirm(t().confirmImport))return;
+let imported=data.trades.map(a=>({...a,checks:getChecks(a)}));
+let old={trades,checks,startingCapital};
+trades=imported;checks=Array.isArray(data.currentChecklist)&&data.currentChecklist.length===6?data.currentChecklist.map(Boolean):[false,false,false,false,false,false];startingCapital=Number(data.startingCapital);
+if(saveData()){setLanguage();alert(t().imported)}else{trades=old.trades;checks=old.checks;startingCapital=old.startingCapital}
+}catch(err){alert(t().importError)}finally{e.target.value=""}
+});
+document.getElementById("date").value=localDate();document.getElementById("tradeTime").value=new Date().toTimeString().slice(0,5);
+setLanguage();
+renderAuthState();initCloud();
+</script></body></html>
