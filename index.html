@@ -417,10 +417,4 @@ if(!confirm(t().confirmImport))return;
 let imported=data.trades.map(a=>({...a,checks:getChecks(a)}));
 let old={trades,checks,startingCapital};
 trades=imported;checks=Array.isArray(data.currentChecklist)&&data.currentChecklist.length===6?data.currentChecklist.map(Boolean):[false,false,false,false,false,false];startingCapital=Number(data.startingCapital);
-if(saveData()){setLanguage();alert(t().imported)}else{trades=old.trades;checks=old.checks;startingCapital=old.startingCapital}
-}catch(err){alert(t().importError)}finally{e.target.value=""}
-});
-document.getElementById("date").value=localDate();document.getElementById("tradeTime").value=new Date().toTimeString().slice(0,5);
-setLanguage();
-renderAuthState();initCloud();
-</script></body></html>
+if(saveData()){setLanguage();alert(t().imported)}else{trades=old.trades;c
